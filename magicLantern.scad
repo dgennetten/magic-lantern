@@ -3,8 +3,8 @@
 // ==========================================
 
 // 1. Global Lantern Parameters
-light_height = 90;      // Height of the LED point light source (Z axis origin)
-cyl_radius = 40;         // INCREASED TO 40mm to support the 72.5mm LED!
+light_height = 90;       // Height of the LED point light source (Z axis origin)
+cyl_radius = 40;         // Outer radius of the lantern cylinder
 wall_thickness = 2;      // Thickness of the cylinder wall
 font_name = "Stencil";   // Windows default Stencil font
 $fn = 120;               // Smoothness of 3D curves
@@ -15,7 +15,7 @@ led_recess = 24;         // How far down inside the cylinder top the LED sits
 tolerance = 0.25;        // Clearance for a snug friction fit
 
 // 3. Visualization Toggle
-show_light_rays = true; // MUST BE FALSE for final F6 mesh export!
+show_light_rays = false; // MUST BE FALSE for final F6 mesh export!
 
 // ==========================================
 // 4. RENDER MODE & SVG CONTROLS
@@ -120,7 +120,6 @@ module project_cal_spiral(start_r=75, end_r=300, dots=37, dot_size=5) {
 
 module all_2d_patterns() {
     if (render_mode == "PATTERNS") {
-
         // Distances recalculated from 130mm light_height to maintain exact visual placement
         project_text(distance = 65, msg = "ONLY THE SUN KNOWS TRUE TIME", t_size = 12, kerning_deg = 11, phase_shift = -5);
         
@@ -162,30 +161,61 @@ module lantern_body() {
     extrude_h = light_height - 5;
     extrude_scale = (light_height - extrude_h) / light_height;
 
-    difference() {
-        // 1. Solid Master Cylinder (Shortened for CAL mode)
-        translate([0, 0, cyl_bottom_z])
-            cylinder(h = total_height - cyl_bottom_z, r = cyl_radius);
-            
-        // 2. Main Inner Lantern Void
-        translate([0, 0, cyl_bottom_z - 0.1]) 
-            cylinder(h = light_height - lip_thickness - cyl_bottom_z + 0.1, r = cyl_radius - wall_thickness);
-            
-        // 3. The LED Cavity 
-        translate([0, 0, light_height])
-            cylinder(h = led_recess + 0.1, r = fit_radius);
-            
-        // 4. The Lip Aperture 
-        translate([0, 0, light_height - lip_thickness - 0.1])
-            cylinder(h = lip_thickness + 0.2, r = fit_radius - lip_width);
-            
-        // 5. Chamfer for easy LED insertion
-        translate([0, 0, total_height - 2])
-            cylinder(h = 2.1, r1 = fit_radius, r2 = fit_radius + 1.5);
-            
-        // 6. Extrude the 2D patterns
-        linear_extrude(height = extrude_h, scale = extrude_scale) {
-            all_2d_patterns();
+    union() {
+        difference() {
+            // 1. Solid Master Cylinder (Shortened for CAL mode)
+            translate([0, 0, cyl_bottom_z])
+                cylinder(h = total_height - cyl_bottom_z, r = cyl_radius);
+                
+            // 2. Main Inner Lantern Void
+            translate([0, 0, cyl_bottom_z - 0.1]) 
+                cylinder(h = light_height - lip_thickness - cyl_bottom_z + 0.1, r = cyl_radius - wall_thickness);
+                
+            // 3. The LED Cavity 
+            translate([0, 0, light_height])
+                cylinder(h = led_recess + 0.1, r = fit_radius);
+                
+            // 4. The Lip Aperture 
+            translate([0, 0, light_height - lip_thickness - 0.1])
+                cylinder(h = lip_thickness + 0.2, r = fit_radius - lip_width);
+                
+            // 5. Chamfer for easy LED insertion
+            translate([0, 0, total_height - 2])
+                cylinder(h = 2.1, r1 = fit_radius, r2 = fit_radius + 1.5);
+                
+            // 6. Extrude the 2D patterns
+            linear_extrude(height = extrude_h, scale = extrude_scale) {
+                all_2d_patterns();
+            }
+        }
+        
+        // 7. Mounting Tabs (Flush with the bottom edge)
+        tab_r = 10;
+        hole_r = 2.5;
+        tab_h = 3;
+        
+        // Moved the center inward by 10mm total from outer radius (y=30 instead of y=35)
+        offset_y = 30; 
+        
+        translate([0, 0, cyl_bottom_z]) {
+            difference() {
+                // Solid tabs, intersected with outer cylinder so the straight lines end cleanly
+                intersection() {
+                    union() {
+                        // 12 o'clock U-shape
+                        translate([0, offset_y, 0]) cylinder(h = tab_h, r = tab_r);
+                        translate([-tab_r, offset_y, 0]) cube([tab_r * 2, cyl_radius - offset_y, tab_h]);
+                        
+                        // 6 o'clock U-shape
+                        translate([0, -offset_y, 0]) cylinder(h = tab_h, r = tab_r);
+                        translate([-tab_r, -cyl_radius, 0]) cube([tab_r * 2, cyl_radius - offset_y, tab_h]);
+                    }
+                    cylinder(h = tab_h, r = cyl_radius);
+                }
+                // 5mm concentric screw holes
+                translate([0, offset_y, -0.1]) cylinder(h = tab_h + 0.2, r = hole_r);
+                translate([0, -offset_y, -0.1]) cylinder(h = tab_h + 0.2, r = hole_r);
+            }
         }
     }
 }
@@ -204,6 +234,6 @@ if (show_light_rays) {
             all_2d_patterns();
             
     color("Yellow", 0.2)
-        linear_extrude(height = light_height - 5, scale = 5/130)
+        linear_extrude(height = light_height - 5, scale = 5 / light_height)
             all_2d_patterns();
 }
