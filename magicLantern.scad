@@ -47,14 +47,16 @@ module project_text(distance, msg, t_size=8, kerning_deg=12, f_name=font_name, p
     floor_r = get_floor_r(distance);
     chars = len(msg);
     total_angle = (chars - 1) * kerning_deg;
+    // Half-span so the midpoint between first and last glyph sits at noon (top) or 6 o'clock (bottom).
     start_angle = total_angle / 2;
-    // Phase shift moves the text block by multiples of the kerning spacing
-    angle_offset = kerning_deg * phase_shift;
     bottom = (location == "bottom");
+    center_angle = bottom ? 180 : 0;
+    // phase_shift=0: arc centered on center_angle. Nonzero: extra rotation in kerning_deg steps.
+    angle_offset = kerning_deg * phase_shift;
     for (i = [0 : chars - 1]) {
         a = bottom
-            ? (180 - start_angle + i * kerning_deg + angle_offset)
-            : (start_angle - i * kerning_deg + angle_offset);
+            ? (center_angle - start_angle + i * kerning_deg + angle_offset)
+            : (center_angle + start_angle - i * kerning_deg + angle_offset);
         rotate(a)
             translate([0, floor_r])
                 rotate(bottom ? 180 : 0)
@@ -126,8 +128,8 @@ module project_cal_spiral(start_r=75, end_r=300, dots=37, dot_size=5) {
 module all_2d_patterns() {
     if (render_mode == "PATTERNS") {
         // Distances recalculated from 130mm light_height to maintain exact visual placement
-        project_text(distance = 65, msg = "Welcome Home", t_size = 12, kerning_deg = 12, phase_shift = -5, location = "top");
-        project_text(distance = 65, msg = "Diana", t_size = 12, kerning_deg = 12, phase_shift = -5, location = "bottom");
+        project_text(distance = 65, msg = "Welcome Home", t_size = 12, kerning_deg = 12, location = "top");
+        project_text(distance = 65, msg = "Diana", t_size = 12, kerning_deg = 12, location = "bottom");
         // Diamonds (vertex=4, rot=0)
         project_polygon(distance = 44, vertex = 4, rot = 0, n = 24, duty = 0.5);
         // Diamonds (vertex=4, rot=0, phase_shift=.5)
