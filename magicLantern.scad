@@ -43,17 +43,22 @@ function get_floor_r(distance) = (light_height * cyl_radius) / distance;
 // ==========================================
 // 2D FLOOR PATTERN MODULES
 // ==========================================
-module project_text(distance, msg, t_size=8, kerning_deg=12, f_name=font_name, phase_shift=0) {
+module project_text(distance, msg, t_size=8, kerning_deg=12, f_name=font_name, phase_shift=0, location="top") {
     floor_r = get_floor_r(distance);
     chars = len(msg);
     total_angle = (chars - 1) * kerning_deg;
     start_angle = total_angle / 2;
     // Phase shift moves the text block by multiples of the kerning spacing
     angle_offset = kerning_deg * phase_shift;
+    bottom = (location == "bottom");
     for (i = [0 : chars - 1]) {
-        rotate(start_angle - i * kerning_deg + angle_offset)
+        a = bottom
+            ? (180 - start_angle + i * kerning_deg + angle_offset)
+            : (start_angle - i * kerning_deg + angle_offset);
+        rotate(a)
             translate([0, floor_r])
-                text(msg[i], size=t_size, font=font_name, halign="center", valign="center");
+                rotate(bottom ? 180 : 0)
+                    text(msg[i], size=t_size, font=f_name, halign="center", valign="center");
     }
 }
 
@@ -121,7 +126,8 @@ module project_cal_spiral(start_r=75, end_r=300, dots=37, dot_size=5) {
 module all_2d_patterns() {
     if (render_mode == "PATTERNS") {
         // Distances recalculated from 130mm light_height to maintain exact visual placement
-        project_text(distance = 65, msg = "Only The Sun Knows True Time", t_size = 12, kerning_deg = 12, phase_shift = -5);
+        project_text(distance = 65, msg = "Welcome Home", t_size = 12, kerning_deg = 12, phase_shift = -5, location = "top");
+        project_text(distance = 65, msg = "Diana", t_size = 12, kerning_deg = 12, phase_shift = -5, location = "bottom");
         // Diamonds (vertex=4, rot=0)
         project_polygon(distance = 44, vertex = 4, rot = 0, n = 24, duty = 0.5);
         // Diamonds (vertex=4, rot=0, phase_shift=.5)
