@@ -131,12 +131,12 @@ module all_2d_patterns() {
         project_text(distance = 65, msg = "Welcome Home", t_size = 12, kerning_deg = 12, location = "top");
         project_text(distance = 65, msg = "Diana", t_size = 12, kerning_deg = 12, location = "bottom");
         // Diamonds (vertex=4, rot=0)
-        project_polygon(distance = 44, vertex = 4, rot = 0, n = 24, duty = 0.5);
+        project_polygon(distance = 44, vertex = 4, rot = 0, n = 20, duty = 0.5);
         // Diamonds (vertex=4, rot=0, phase_shift=.5)
-        project_polygon(distance = 49, vertex = 4, rot = 0, n = 24, duty = 0.5, phase_shift = 0.5);
-        project_circles(distance = 35, n = 24, duty = 0.75);
-        project_rays(distance = 25, bar_h = width_24 * 4, n = 24, duty = 0.75);
-        project_circles(distance = 14.5, n = 24, duty = 0.75);
+        project_polygon(distance = 49, vertex = 4, rot = 0, n = 20, duty = 0.5, phase_shift = 0.5);
+        project_circles(distance = 35, n = 20, duty = 0.75);
+        project_rays(distance = 25, bar_h = width_24 * 4, n = 20, duty = 0.75);
+        project_circles(distance = 14.5, n = 20, duty = 0.75);
 
     } else if (render_mode == "SVG") {
         translate([svg_x_offset, svg_y_offset])
