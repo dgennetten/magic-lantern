@@ -128,8 +128,8 @@ module project_cal_spiral(start_r=75, end_r=300, dots=37, dot_size=5) {
 module all_2d_patterns() {
     if (render_mode == "PATTERNS") {
         // Distances recalculated from 130mm light_height to maintain exact visual placement
-        project_text(distance = 65, msg = "Welcome Home", t_size = 12, kerning_deg = 12, location = "top");
-        project_text(distance = 65, msg = "Diana", t_size = 12, kerning_deg = 12, location = "bottom");
+        project_text(distance = 65, msg = "WELCOME HOME", t_size = 12, kerning_deg = 12, location = "top");
+        project_text(distance = 65, msg = "DIANA", t_size = 12, kerning_deg = 12, location = "bottom");
         // Diamonds (vertex=4, rot=0)
         project_polygon(distance = 44, vertex = 4, rot = 0, n = 20, duty = 0.5);
         // Diamonds (vertex=4, rot=0, phase_shift=.5)
